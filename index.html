@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html ng-app="app">
+	<head>
+		<meta charset="utf-8">
+    <title>Bank z klasą - Cała wiedza o bankowości</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="shortcut icon" href="favicon.ico">
+    <style>
+			body {
+				font: 14px Arial,Tahoma,Sans-Serif;
+				color:#333;
+				background-color: #fff;
+				background-image: url('img/bar.png');
+				background-repeat: repeat-x;
+			}
+			a {
+				text-decoration: none;
+				cursor: pointer;
+			}
+			.container {
+				width: 380px;
+				height: 200px;
+				margin: 6% auto 0 auto;
+				padding-top: 165px;
+				background: url('img/logo2.png') no-repeat center 0;
+			}
+			.container .body {
+				padding: 10px;
+				border-top:1px solid #F0F0F0;
+				background-color:#f8f8f8
+			}
+			.container .avatar {
+				width: 50px;
+				height: 50px;
+				border: 2px solid #27747E;
+				background: url('img/avatar.png') no-repeat 0 0;
+				background-color: #ffffff;
+				background-size: 50px 50px;
+				border-radius:150px;-webkit-border-radius:150px;-moz-border-radius:150px
+			}
+			form label {
+				width: 50px;
+				display: inline-block;
+				padding-right: 10px;
+				text-align: right;
+				font-weight: bold;
+				color: #4c4b4b;
+			}
+			form .textfield {
+				padding: 3px;
+				margin: 0;
+				border: 1px solid #E0E0E0;
+				background: #ffffff;
+			}
+			form .submit {
+				margin-top: -5px;
+  			padding: 4px 20px 4px;
+  			font-size: 13px;
+  			text-decoration: none;
+  			color: #fff;
+  			border: none;
+				background-color: #27747E;
+				cursor: pointer;
+			}
+			form .error {
+				margin-left: 65px;
+				display: block;
+				color: #DB4333;
+			}
+			form em {
+				display: none;
+			}
+			.container .history {
+				margin-top: 1px;
+				padding: 3px 10px 10px 10px; 
+				background-color: #27747E;
+				color: #ffffff;
+			}
+			.container .history input {
+				float: right;
+				margin: -1px 0 0 0;
+				padding: 2px;
+				border: none;
+				background: #ffffff;
+				font-size: 13px;
+			}
+			.container .history ul {
+				padding: 0 0 0 3px;
+				list-style-type: none;
+			}
+			.container .history ul li {
+				border: 1px solid #27747E;
+				margin-bottom: 9px;
+			}
+			.container .history ul li a {
+				display: inline-block;
+				padding: 3px 0 0 10px;
+				color: #ffffff;
+			}
+			.container .history .avatar {
+				width: 25px;
+				height: 25px;
+				margin: -2px 0 0 0;
+				float: left;
+				background-color: #ffffff;
+				background-size: 25px 25px;
+				border-radius:150px;-webkit-border-radius:150px;-moz-border-radius:150px
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container" ng-controller="index">
+			<div class="body">
+				<form method="post" name="form" ng-submit="submitted=true;form.$valid ? create('app.html#/account') : null"  invalidate>
+					<p>
+						<label for="name">login:</label>
+						<input class="textfield" id="name" name="name" type="text" required="required" maxlength="25" data-ng-model="user.name" data-unique-property="users.name" data-login />
+						<span class="error" ng-show="submitted && form.name.$error.min">Login jest za krótki.</span>
+						<span class="error" ng-show="submitted && form.name.$error.max">Login jest za długi (do 30 znaków).</span>
+						<span class="error" ng-show="submitted && form.name.$error.unique">Podany login jest zajęty.</span>
+					</p>
+					<p>
+						<label for="name">hasło:</label>
+						<input class="textfield" id="name" name="name" type="password" required="required" maxlength="25" data-ng-model="user.password" data-password />
+						<span class="error" ng-show="submitted && form.name.$error.pass_min">Hasło powinno zawierać 8 lub więcej znaków.</span>
+						<span class="error" ng-show="submitted && form.name.$error.one_capital_letter">Hasło powinno zawierać conajmniej jedną dużą literę.</span>
+						<span class="error" ng-show="submitted && form.name.$error.one_digit">Hasło powinno zawierać conajmniej jedną cyfrę.</span>
+					</p>
+					<p>
+						<label for="avatar">avatar:</label>
+						<input type="file" name="avatar" id="avatar" ng-file-select="onFileSelect($files)" accept="image/png, image/gif, image/jpeg" />
+						<span class="error" style="display:none">Plik nie jest obrazem</span>
+						<span class="error" style="display:none">Dozwolona wielkość obrazka do 2MB</span>
+					</p>
+					<p>
+						<label></label>
+						<img class="avatar" ng-src="{{user.avatar}}" />
+					</p>
+					<p>
+						<label></label>
+						<input type="submit" class="submit" value="Zaloguj" />
+					</p>
+				</form>
+			</div>
+			<div class="history">
+				<h3>Lista kont <input type="text" ng-model="search.name" placeholder="szukaj" /></h3>
+				<ul>
+					<li ng-repeat="user in users track by $index | filter: search | orderBy: 'name'">
+						<img ng-if="user.avatar.length" class="avatar" ng-src="{{user.avatar}}" />
+						<img ng-if="!user.avatar.length" class="avatar" ng-src="img/avatar.png" />
+						<a ng-click="login(user._id, 'app.html#/account')">{{user.name}}</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<script src="js/jquery-1.10.2.min.js"></script>
+		<script src="js/pouchdb-nightly.min.js"></script>
+		<script src="js/angular.min.js"></script>
+		<script src="js/angular-route.min.js"></script>
+		<script src="js/module/app.js"></script>
+		<script src="js/controller/index.js"></script>
+  </body>
+</html>
